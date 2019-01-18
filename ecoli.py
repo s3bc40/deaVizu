@@ -28,12 +28,21 @@ from tulip import tlp
 # The main(graph) function must be defined 
 # to run the script on the current graph
 
-def preProcess(g,locus,label,size,color,position):
-  for n in g.getNodes():
-    label[n] = locus[n]
-    size.setAllNodeValue(0.5)
+def preProcess(gr,locus,label,size,color,regPositive,regNegative,layout):
+  for node in gr.getNodes():
+    label[node] = locus[node]
+    if(regNegative == True and regPositive == False):
+      color.setAllNodeValue(tlp.Color.Blue)
+    elif(regNegative == False and regPositive == True):
+      color.setAllNodeValue(tlp.Color.Red)
+    elif(regNegative == True and regPositive == True):
+      color.setAllNodeValue(tlp.Color.Green)
+    else:
+      color.setAllNodeValue(tlp.Color.Amber)
+  size.setAllNodeValue(tlp.Size(5,5,0))
+  gr.applyLayoutAlgorithm("Random layout",layout)
     
-
+    
 def main(graph): 
   Locus = graph.getStringProperty("Locus")
   Negative = graph.getBooleanProperty("Negative")
@@ -80,4 +89,4 @@ def main(graph):
   viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
   
   # Preprocess
-  preProcess(graph,Locus,viewLabel,viewSize,viewColor,viewLayout)
+  preProcess(graph,Locus,viewLabel,viewSize,viewColor,Positive,Negative,viewLayout)
