@@ -28,21 +28,150 @@ from tulip import tlp
 # The main(graph) function must be defined 
 # to run the script on the current graph
 
-def preProcess(gr,locus,label,size,color,regPositive,regNegative,layout):
-  for node in gr.getNodes():
-    label[node] = locus[node]
-    if(regNegative == True and regPositive == False):
-      color.setAllNodeValue(tlp.Color.Blue)
-    elif(regNegative == False and regPositive == True):
-      color.setAllNodeValue(tlp.Color.Red)
-    elif(regNegative == True and regPositive == True):
-      color.setAllNodeValue(tlp.Color.Green)
+#===================================
+# PART I
+#===================================
+def preProcess(graph,locus,label,size,color,regPositive,regNegative,layout,labelColor,labelBorderColor):
+  for edge in graph.getEdges():
+    if(regNegative[edge] == True and regPositive[edge] == False):
+      color[edge] = tlp.Color.Red
+    elif(regNegative[edge] == False and regPositive[edge] == True):
+      color[edge] = tlp.Color.Green
+    elif(regNegative[edge] == True and regPositive[edge] == True):
+      color[edge] = tlp.Color.Blue
     else:
-      color.setAllNodeValue(tlp.Color.Amber)
+      color[edge] = tlp.Color.Amber
+  label.copy(locus)
+  color.setAllNodeValue(tlp.Color.Gray)
+  labelColor.setAllNodeValue(tlp.Color.White)
+  labelBorderColor.setAllNodeValue(tlp.Color.White)
   size.setAllNodeValue(tlp.Size(5,5,0))
-  gr.applyLayoutAlgorithm("Random layout",layout)
-    
-    
+  graph.applyLayoutAlgorithm("Random layout",layout)
+
+#===================================
+# PART II
+#===================================
+
+#===================================
+# CONTRUCT TREE
+def constructHierachicalTree(treeGraph,interactGraph):
+  root = treeGraph.addNode()
+  constructRecursiveTree(treeGraph,interactGraph,root)
+  
+def constructRecursiveTree(treeGraph,interactGraph,srcNode):
+  if(interactGraph.numberOfSubGraphs() == 0):
+    for node in interactGraph.getNodes():
+      treeGraph.addNode(node)
+      treeGraph.addEdge(srcNode,node)
+  else:
+    for subGraph in interactGraph.getSubGraphs():
+        childNode = treeGraph.addNode()
+        treeGraph.addEdge(srcNode,childNode)
+        constructRecursiveTree(treeGraph,subGraph,childNode)
+
+
+def applyRadialAlgo(treeGraph,layout):
+  treeGraph.applyLayoutAlgorithm("Tree Radial")
+
+def colorNodes(graph,doubleMetric):
+  colorProp = graph.getColorProperty("viewColor")
+  colorScale = tlp.ColorScale([])
+  colors = [tlp.Color.Green ,tlp.Color.Black,tlp.Color.Red]
+  colorScale.setColorScale(colors)
+  param = tlp.getDefaultPluginParameters("Color Mapping", graph)
+  param["input property"] = doubleMetric
+  param["color scale"] = colorScale
+  graph.applyColorAlgorithm("Color Mapping", colorProp, param)
+
+#===================================
+# CONSTRUCT BUNDLES
+def computeShortPath(treeGraph,srcNode,endNode):
+  depth = treeGraph.getLocalIntegerProperty("depth");
+  fromSrcNode = []
+  fromEndNode = []
+  computeShortPathRec(treeGraph,srcNode,endNode,fromSrcNode,fromEndNode,depth)
+  return fromSrcNode + fromEndNode
+
+def computeShortPathRec(treeGraph,srcNode,endNode,fromSrcNode,fromEndNode,depth):
+  if(srcNode == endNode):
+    fromSrcNode.append(srcNode)
+    fromEndNode.reverse()
+    return None
+  depthSource = depth[srcNode]
+  depthEnd = depth[endNode]
+  if(depthSource > depthEnd):
+    srcNode = treeGraph.getInNode(srcNode,1)
+    fromSrcNode.append(srcNode)
+  elif(depthSource < depthEnd):
+    endNode = treeGraph.getInNode(endNode,1)
+    fromEndNode.append(endNode)
+  else:
+    srcNode = treeGraph.getInNode(srcNode,1)
+    fromSrcNode.append(srcNode)
+    endNode = treeGraph.getInNode(endNode,1)
+    fromEndNode.append(endNode)
+  computeShortPathRec(treeGraph,srcNode,endNode,fromSrcNode,fromEndNode,depth)
+
+def constructBundles(treeGraph,interactGraph,layout):
+  for edge in interactGraph.getEdges():
+    u,v = interactGraph.ends(edge)
+    pathNode = computeShortPath(treeGraph,u,v)
+    pathCoord = []
+    for node in pathNode:
+      pathCoord.append(layout[node])
+    layout.setEdgeValue(edge,pathCoord)
+      
+#===================================
+# PART III
+#===================================
+def createHierarchy(smallMultGraph,interactGraph):
+  listNodes = []
+  for index in range(1,18):
+    tp_i = graph.getDoubleProperty("tp{} s".format(index))
+    subCopyGraph = smallMultGraph.addSubGraph("tp{}".format(index))
+    tlp.copyToGraph(subCopyGraph,interactGraph)
+    metric = subCopyGraph.getLocalDoubleProperty("viewMetric")
+    metric.copy(tp_i)
+    colorSmallMultiples(subCopyGraph,metric)
+
+def colorSmallMultiples(graph,doubleMetric):
+  colorProp = graph.getLocalColorProperty("viewColor")
+  colorScale = tlp.ColorScale([])
+  colors = [tlp.Color.Red, tlp.Color.Black ,tlp.Color.Green]
+  colorScale.setColorScale(colors)
+  param = tlp.getDefaultPluginParameters("Color Mapping", graph)
+  param["input property"] = doubleMetric
+  param["color scale"] = colorScale
+  graph.applyColorAlgorithm("Color Mapping", colorProp, param)
+
+def constructGrid(graph,columns):
+  grid = []
+  for subGraph in graph.getSubGraphs():
+	  index = 0
+	  grid.append([])
+	  for column in range(columns):
+	    grid[index].append(subGraph)
+	  index += 1
+  return grid
+
+	  
+def drawRegulary(grid, layout):
+	for line in range(len(grid)):
+		for column in range(len(grid[line])):
+			subGraph = grid[line][column]
+			for node in subGraph.getNodes():
+			  coord = tlp.Coord(layout[node].getX()* line, layout[node].getY()*column, 0)
+    			layout[node] = coord
+
+def createSmallMultiples(smallMultGraph, interactGraph, layout):
+  createHierarchy(smallMultGraph,interactGraph)
+  grid = constructGrid(smallMultGraph,7)
+  #drawRegulary(grid, layout)
+  
+
+#===================================
+# MAIN
+#===================================
 def main(graph): 
   Locus = graph.getStringProperty("Locus")
   Negative = graph.getBooleanProperty("Negative")
@@ -89,4 +218,14 @@ def main(graph):
   viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
   
   # Preprocess
-  preProcess(graph,Locus,viewLabel,viewSize,viewColor,Positive,Negative,viewLayout)
+  preProcess(graph,Locus,viewLabel,viewSize,viewColor,Positive,Negative,viewLayout,viewLabelColor,viewLabelBorderColor)
+  interactGraph = graph.getSubGraph("Genes interactions")
+  treeGraph = graph.addSubGraph("Hierarchical Tree")
+  constructHierachicalTree(treeGraph,interactGraph)
+  applyRadialAlgo(treeGraph,viewLayout)
+  colorNodes(treeGraph,tp1_s)
+  depth = treeGraph.getLocalIntegerProperty("depth");
+  tlp.dagLevel(treeGraph,depth)
+  constructBundles(treeGraph,interactGraph,viewLayout)
+  smallMultGraph = graph.addSubGraph("Small Multiples")
+  createSmallMultiples(smallMultGraph, interactGraph, viewLayout)
