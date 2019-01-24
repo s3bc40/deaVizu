@@ -124,13 +124,14 @@ def constructBundles(treeGraph,interactGraph,layout):
 #===================================
 # PART III
 #===================================
-def createHierarchy(smallMultGraph,interactGraph):
+def createHierarchy(smallMultGraph,interactGraph,graph):
   listNodes = []
   for index in range(1,18):
-    tp_i = graph.getDoubleProperty("tp{} s".format(index))
+    tp_i = graph.getLocalDoubleProperty("tp{} s".format(index))
     subCopyGraph = smallMultGraph.addSubGraph("tp{}".format(index))
     tlp.copyToGraph(subCopyGraph,interactGraph)
     metric = subCopyGraph.getLocalDoubleProperty("viewMetric")
+    tp_i = graph.getDoubleProperty("tp{} s".format(index))
     metric.copy(tp_i)
     colorSmallMultiples(subCopyGraph,metric)
 
@@ -145,28 +146,36 @@ def colorSmallMultiples(graph,doubleMetric):
   graph.applyColorAlgorithm("Color Mapping", colorProp, param)
 
 def constructGrid(graph,columns):
-  grid = []
-  for subGraph in graph.getSubGraphs():
-	  index = 0
-	  grid.append([])
-	  for column in range(columns):
-	    grid[index].append(subGraph)
-	  index += 1
-  return grid
+	layout = graph.getLayoutProperty("viewLayout")
+	bBox = tlp.computeBoundingBox(graph)
+	numberSub = graph.numberOfSubGraphs()
+	idSubgraph = 0
+	line = 0
+	while  idSubgraph < numberSub:
+		for column in range(columns):
+			if(idSubgraph < numberSub):
+				idSubgraph += 1
+				subGraph = graph.getSubGraph("tp{}".format(idSubgraph))
+				drawSmallMultiple(subGraph,line,column,bBox,layout)
+			else:
+				break
+		line += 1
 
-	  
-def drawRegulary(grid, layout):
-	for line in range(len(grid)):
-		for column in range(len(grid[line])):
-			subGraph = grid[line][column]
-			for node in subGraph.getNodes():
-			  coord = tlp.Coord(layout[node].getX()* line, layout[node].getY()*column, 0)
-    			layout[node] = coord
+def drawSmallMultiple(graph, line, column,bBox,layout):
+	width = bBox.width()
+	height = bBox.height()
+	for node in graph.getNodes():
+		layout[node] = tlp.Coord((column * width) + layout[node].getX(),(line * - height) + layout[node].getY(),0)
+	for edge in graph.getEdges():
+		newControlPoints = []
+		for controlPoint in layout[edge]:
+			controlPoint = tlp.Coord((column * width) + controlPoint.getX(),(line * - height) + controlPoint.getY(),0)
+			newControlPoints.append(controlPoint)
+		layout.setEdgeValue(edge,newControlPoints)
 
-def createSmallMultiples(smallMultGraph, interactGraph, layout):
-  createHierarchy(smallMultGraph,interactGraph)
-  grid = constructGrid(smallMultGraph,7)
-  #drawRegulary(grid, layout)
+def createSmallMultiples(smallMultGraph, interactGraph):
+  createHierarchy(smallMultGraph,interactGraph,graph)
+  constructGrid(smallMultGraph,7)
   
 
 #===================================
@@ -228,4 +237,4 @@ def main(graph):
   tlp.dagLevel(treeGraph,depth)
   constructBundles(treeGraph,interactGraph,viewLayout)
   smallMultGraph = graph.addSubGraph("Small Multiples")
-  createSmallMultiples(smallMultGraph, interactGraph, viewLayout)
+  createSmallMultiples(smallMultGraph, interactGraph)
