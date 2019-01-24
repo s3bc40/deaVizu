@@ -31,8 +31,30 @@ from tulip import tlp
 #===================================
 # PART I
 #===================================
-def preProcess(graph,locus,label,size,color,regPositive,regNegative,layout,labelColor,labelBorderColor):
-  for edge in graph.getEdges():
+def preProcess(rootGraph,locus,label,size,color,regPositive,regNegative,layout,labelColor,labelBorderColor):
+  """ Function for preprocessing the root graph before applying main algorithms.
+
+  This function permits to get the first vizualisation of the root graph. It will apply
+  labels corresponding to the locus at each nodes. A size to each nodes in order to be able to 
+  see the labels. A color to each edges of the root graph in function of their regulation type.
+  And finally, a layout algorithm, here the "Random Layout", to store a position for each nodes.
+
+  Args:
+    rootGraph (tlp.Graph) : the root graph of this vizualisation project
+    locus (tlp.StringProperty) : a property linked to the loci of a gene, or a node
+    label (tlp.StringProperty) : a property linked to the "viewLayout" of the root graph 
+    size (tlp.DoubleProperty) : a property linked to the "viewSize" of the root graph 
+    color (tlp.ColorProperty) : a property linked to the "viewColor" of the root graph 
+    regPositive (tlp.BooleanProperty) : a property linked to the positive regulation of a gene
+    regPositive (tlp.BooleanProperty) : a property linked to the negative regulation of a gene
+    layout (tlp.LayoutProperty) : a property linked to the "viewLayout" of the root graph
+    labelColor (tlp.ColorProperty) : a property linked to the "viewLabelColor" of the root graph 
+    labelBorderColor (tlp.ColorProperty) : a property linked to the "viewLabelBorderColor" of the root graph
+
+  Returns:
+    None
+  """
+  for edge in rootGraph.getEdges():
     if(regNegative[edge] == True and regPositive[edge] == False):
       color[edge] = tlp.Color.Red
     elif(regNegative[edge] == False and regPositive[edge] == True):
@@ -46,7 +68,7 @@ def preProcess(graph,locus,label,size,color,regPositive,regNegative,layout,label
   labelColor.setAllNodeValue(tlp.Color.White)
   labelBorderColor.setAllNodeValue(tlp.Color.White)
   size.setAllNodeValue(tlp.Size(5,5,0))
-  graph.applyLayoutAlgorithm("Random layout",layout)
+  rootGraph.applyLayoutAlgorithm("Random layout",layout)
 
 #===================================
 # PART II
@@ -55,10 +77,36 @@ def preProcess(graph,locus,label,size,color,regPositive,regNegative,layout,label
 #===================================
 # CONTRUCT TREE
 def constructHierachicalTree(treeGraph,interactGraph):
+  """ Function to initialize the recursive algorithm to construct the hierarchical tree with a root node.
+
+  Args:
+    treeGraph (tlp.Graph) : the hierarchical tree graph 
+    interactGraph (tlp.Graph) : the gene interaction graph
+
+  Returns:
+    None
+  """
   root = treeGraph.addNode()
   constructRecursiveTree(treeGraph,interactGraph,root)
   
 def constructRecursiveTree(treeGraph,interactGraph,srcNode):
+  """ Recursive algorithm to construct the tree graph by running through the gene interaction graph and its sugraphes.
+
+  The principle of this algorithm is to construct a hierarchical tree where the nodes represents a cluster
+  of genes and the leaves the nodes that we need to classify. Hence, the compute process consists to recursively
+  roaming in the gene interactions subgraphes by adding a node in the tree graph for each subgraph encountered. When a subgraph
+  doesn't have any child subgraph, all the nodes and edges are added and linked with the last cluster node in the tree graph.
+  This algorithm end when all sugraphes from the gene interaction graph are computed.
+
+  Args:
+    treeGraph (tlp.Graph) : the hierarchical tree graph to construct
+    interactGraph (tlp.Graph) : the gene interaction graph (or subgraph) to proceed down
+    srcNode (tlp.Node) : the source node from the tree graph (initialized at root node)
+
+  Returns:
+    None
+  """
+
   if(interactGraph.numberOfSubGraphs() == 0):
     for node in interactGraph.getNodes():
       treeGraph.addNode(node)
@@ -71,6 +119,15 @@ def constructRecursiveTree(treeGraph,interactGraph,srcNode):
 
 
 def applyRadialAlgo(treeGraph,layout):
+  """ Apply the radial algorithm available in Tulip.
+
+  Args:
+    treeGraph (tlp.Graph) : the hierarchical tree graph 
+    layout (tlp.LayoutProperty) : a property linked to the "viewLayout" of the root graph
+
+  Returns:
+    None
+  """
   treeGraph.applyLayoutAlgorithm("Tree Radial")
 
 def colorNodes(graph,doubleMetric):
@@ -226,15 +283,22 @@ def main(graph):
   viewTgtAnchorShape = graph.getIntegerProperty("viewTgtAnchorShape")
   viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
   
-  # Preprocess
-  preProcess(graph,Locus,viewLabel,viewSize,viewColor,Positive,Negative,viewLayout,viewLabelColor,viewLabelBorderColor)
+  # Preprocess the data
+  rootGraph = graph
+  preProcess(rootGraph,Locus,viewLabel,viewSize,viewColor,Positive,Negative,viewLayout,viewLabelColor,viewLabelBorderColor)
+  
+  # Create Hierarchical Tree
   interactGraph = graph.getSubGraph("Genes interactions")
   treeGraph = graph.addSubGraph("Hierarchical Tree")
   constructHierachicalTree(treeGraph,interactGraph)
   applyRadialAlgo(treeGraph,viewLayout)
   colorNodes(treeGraph,tp1_s)
+
+  # Construct bundles
   depth = treeGraph.getLocalIntegerProperty("depth");
   tlp.dagLevel(treeGraph,depth)
   constructBundles(treeGraph,interactGraph,viewLayout)
+
+  # Create Small Multiple Graph
   smallMultGraph = graph.addSubGraph("Small Multiples")
   createSmallMultiples(smallMultGraph, interactGraph)
