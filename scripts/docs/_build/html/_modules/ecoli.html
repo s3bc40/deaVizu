@@ -1,0 +1,530 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ecoli &#8212; Tulip  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ecoli</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Powered by Python 2.7</span>
+
+<span class="c1"># To cancel the modifications performed by the script</span>
+<span class="c1"># on the current graph, click on the undo button.</span>
+
+<span class="c1"># Some useful keyboards shortcuts : </span>
+<span class="c1">#   * Ctrl + D : comment selected lines.</span>
+<span class="c1">#   * Ctrl + Shift + D  : uncomment selected lines.</span>
+<span class="c1">#   * Ctrl + I : indent selected lines.</span>
+<span class="c1">#   * Ctrl + Shift + I  : unindent selected lines.</span>
+<span class="c1">#   * Ctrl + Return  : run script.</span>
+<span class="c1">#   * Ctrl + F  : find selected text.</span>
+<span class="c1">#   * Ctrl + R  : replace selected text.</span>
+<span class="c1">#   * Ctrl + Space  : show auto-completion dialog.</span>
+
+<span class="c1">#from tulip import tlp</span>
+
+<span class="c1"># The updateVisualization(centerViews = True) function can be called</span>
+<span class="c1"># during script execution to update the opened views</span>
+
+<span class="c1"># The pauseScript() function can be called to pause the script execution.</span>
+<span class="c1"># To resume the script execution, you will have to click on the &quot;Run script &quot; button.</span>
+
+<span class="c1"># The runGraphScript(scriptFile, graph) function can be called to launch</span>
+<span class="c1"># another edited script on a tlp.Graph object.</span>
+<span class="c1"># The scriptFile parameter defines the script name to call (in the form [a-zA-Z0-9_]+.py)</span>
+
+<span class="c1"># The main(graph) function must be defined </span>
+<span class="c1"># to run the script on the current graph</span>
+
+<span class="c1">#===================================</span>
+<span class="c1"># PART I</span>
+<span class="c1">#===================================</span>
+<div class="viewcode-block" id="preProcess"><a class="viewcode-back" href="../ecoli.html#ecoli.preProcess">[docs]</a><span class="k">def</span> <span class="nf">preProcess</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">locus</span><span class="p">,</span><span class="n">label</span><span class="p">,</span><span class="n">size</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">regPositive</span><span class="p">,</span><span class="n">regNegative</span><span class="p">,</span><span class="n">layout</span><span class="p">,</span><span class="n">labelColor</span><span class="p">,</span><span class="n">labelBorderColor</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function for preprocessing the root graph before applying main algorithms.</span>
+
+<span class="sd">  This function permits to get the first vizualisation of the root graph. It will apply</span>
+<span class="sd">  labels corresponding to the locus at each nodes. A size to each nodes in order to be able to </span>
+<span class="sd">  see the labels. A color to each edges of the root graph in function of their regulation type.</span>
+<span class="sd">  And finally, a layout algorithm, here the &quot;Random Layout&quot;, to store a position for each nodes.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    rootGraph (tlp.Graph) : the graph to preprocess and visualize</span>
+<span class="sd">    locus (tlp.StringProperty) : a property linked to the loci of a gene, or a node</span>
+<span class="sd">    label (tlp.StringProperty) : a property linked to the &quot;viewLayout&quot; of the root graph </span>
+<span class="sd">    size (tlp.DoubleProperty) : a property linked to the &quot;viewSize&quot; of the root graph </span>
+<span class="sd">    color (tlp.ColorProperty) : a property linked to the &quot;viewColor&quot; of the root graph </span>
+<span class="sd">    regPositive (tlp.BooleanProperty) : a property linked to the positive regulation of a gene, represented by the edges</span>
+<span class="sd">    regPositive (tlp.BooleanProperty) : a property linked to the negative regulation of a gene, represented by the edges</span>
+<span class="sd">    layout (tlp.LayoutProperty) : a property linked to the &quot;viewLayout&quot; of the root graph</span>
+<span class="sd">    labelColor (tlp.ColorProperty) : a property linked to the &quot;viewLabelColor&quot; of the root graph </span>
+<span class="sd">    labelBorderColor (tlp.ColorProperty) : a property linked to the &quot;viewLabelBorderColor&quot; of the root graph</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">getEdges</span><span class="p">():</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">regNegative</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">regPositive</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">):</span>
+      <span class="n">color</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Red</span>
+    <span class="k">elif</span><span class="p">(</span><span class="n">regNegative</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">regPositive</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+      <span class="n">color</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Green</span>
+    <span class="k">elif</span><span class="p">(</span><span class="n">regNegative</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">regPositive</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+      <span class="n">color</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Blue</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">color</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Amber</span>
+  <span class="n">label</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">locus</span><span class="p">)</span>
+  <span class="n">color</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Gray</span><span class="p">)</span>
+  <span class="n">labelColor</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">White</span><span class="p">)</span>
+  <span class="n">labelBorderColor</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">White</span><span class="p">)</span>
+  <span class="n">size</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+  <span class="n">graph</span><span class="o">.</span><span class="n">applyLayoutAlgorithm</span><span class="p">(</span><span class="s2">&quot;Random layout&quot;</span><span class="p">,</span><span class="n">layout</span><span class="p">)</span></div>
+
+<span class="c1">#===================================</span>
+<span class="c1"># PART II</span>
+<span class="c1">#===================================</span>
+
+<span class="c1">#===================================</span>
+<span class="c1"># CONTRUCT TREE</span>
+<div class="viewcode-block" id="constructHierachicalTree"><a class="viewcode-back" href="../ecoli.html#ecoli.constructHierachicalTree">[docs]</a><span class="k">def</span> <span class="nf">constructHierachicalTree</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function to initialize the recursive algorithm to construct the hierarchical tree with a root node.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    treeGraph (tlp.Graph) : the hierarchical tree graph </span>
+<span class="sd">    interactGraph (tlp.Graph) : the gene interaction graph</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">root</span> <span class="o">=</span> <span class="n">treeGraph</span><span class="o">.</span><span class="n">addNode</span><span class="p">()</span>
+  <span class="n">constructRecursiveTree</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">,</span><span class="n">root</span><span class="p">)</span></div>
+  
+<div class="viewcode-block" id="constructRecursiveTree"><a class="viewcode-back" href="../ecoli.html#ecoli.constructRecursiveTree">[docs]</a><span class="k">def</span> <span class="nf">constructRecursiveTree</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">roamGraph</span><span class="p">,</span><span class="n">srcNode</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Recursive algorithm to construct the tree graph by running through the gene interaction graph and its sugraphes.</span>
+
+<span class="sd">  The principle of this algorithm is to construct a hierarchical tree where the nodes represents a cluster</span>
+<span class="sd">  of genes and the leaves the nodes that we need to classify. Hence, the compute process consists to recursively</span>
+<span class="sd">  roaming in the gene interactions subgraphes by adding a node in the tree graph for each subgraph encountered. When a subgraph</span>
+<span class="sd">  doesn&#39;t have any child subgraph, all the nodes and edges are added and linked with the last cluster node in the tree graph.</span>
+<span class="sd">  This algorithm end when all sugraphes from the gene interaction graph are computed.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    treeGraph (tlp.Graph) : the hierarchical tree graph to construct</span>
+<span class="sd">    roamGraph (tlp.Graph) : the gene interaction graph (or subgraph) to proceed down</span>
+<span class="sd">    srcNode (tlp.Node) : the source node from the tree graph (initialized as the root node)</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">roamGraph</span><span class="o">.</span><span class="n">numberOfSubGraphs</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">roamGraph</span><span class="o">.</span><span class="n">getNodes</span><span class="p">():</span>
+      <span class="n">treeGraph</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+      <span class="n">treeGraph</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">srcNode</span><span class="p">,</span><span class="n">node</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">subGraph</span> <span class="ow">in</span> <span class="n">roamGraph</span><span class="o">.</span><span class="n">getSubGraphs</span><span class="p">():</span>
+        <span class="n">childNode</span> <span class="o">=</span> <span class="n">treeGraph</span><span class="o">.</span><span class="n">addNode</span><span class="p">()</span>
+        <span class="n">treeGraph</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">srcNode</span><span class="p">,</span><span class="n">childNode</span><span class="p">)</span>
+        <span class="n">constructRecursiveTree</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">subGraph</span><span class="p">,</span><span class="n">childNode</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="applyRadialAlgo"><a class="viewcode-back" href="../ecoli.html#ecoli.applyRadialAlgo">[docs]</a><span class="k">def</span> <span class="nf">applyRadialAlgo</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">layout</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Apply the radial algorithm available in Tulip.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    treeGraph (tlp.Graph) : the hierarchical tree graph </span>
+<span class="sd">    layout (tlp.LayoutProperty) : a property linked to the &quot;viewLayout&quot; of the root graph</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">treeGraph</span><span class="o">.</span><span class="n">applyLayoutAlgorithm</span><span class="p">(</span><span class="s2">&quot;Tree Radial&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="colorNodes"><a class="viewcode-back" href="../ecoli.html#ecoli.colorNodes">[docs]</a><span class="k">def</span> <span class="nf">colorNodes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">doubleMetric</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function to set a color for each node in the graph, depending on their respective value in the double metric property</span>
+
+<span class="sd">  To color the nodes, this function uses the &quot;Color Mapping&quot; algorithm from Tulip, with the double metric</span>
+<span class="sd">  values as input properties.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : the graph where the color mapping will process on</span>
+<span class="sd">    doubleMetric (tlp.DoubleProperty) : a property linked to any double properties from the graph</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">colorProp</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getColorProperty</span><span class="p">(</span><span class="s2">&quot;viewColor&quot;</span><span class="p">)</span>
+  <span class="n">colorScale</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">ColorScale</span><span class="p">([])</span>
+  <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Green</span> <span class="p">,</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Black</span><span class="p">,</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Red</span><span class="p">]</span>
+  <span class="n">colorScale</span><span class="o">.</span><span class="n">setColorScale</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+  <span class="n">param</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">getDefaultPluginParameters</span><span class="p">(</span><span class="s2">&quot;Color Mapping&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
+  <span class="n">param</span><span class="p">[</span><span class="s2">&quot;input property&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">doubleMetric</span>
+  <span class="n">param</span><span class="p">[</span><span class="s2">&quot;color scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">colorScale</span>
+  <span class="n">graph</span><span class="o">.</span><span class="n">applyColorAlgorithm</span><span class="p">(</span><span class="s2">&quot;Color Mapping&quot;</span><span class="p">,</span> <span class="n">colorProp</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span></div>
+
+<span class="c1">#===================================</span>
+<span class="c1"># CONSTRUCT BUNDLES</span>
+<div class="viewcode-block" id="computeShortPath"><a class="viewcode-back" href="../ecoli.html#ecoli.computeShortPath">[docs]</a><span class="k">def</span> <span class="nf">computeShortPath</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">srcNode</span><span class="p">,</span><span class="n">endNode</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function to initialize the recursive algorithm to compute the shortest path between the source node and the end node.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    treeGraph (tlp.Graph) : the hierarchical tree graph </span>
+<span class="sd">    srcNode (tlp.Node) : the start node for the path</span>
+<span class="sd">    endNode (tlp.Node) : the end node for the path</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    list[tlp.Node] : A concatenated list corresponding to the path between the srcNode and the endNode</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">depth</span> <span class="o">=</span> <span class="n">treeGraph</span><span class="o">.</span><span class="n">getLocalIntegerProperty</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">);</span>
+  <span class="n">fromSrcNode</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="n">fromEndNode</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="n">computeShortPathRec</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">srcNode</span><span class="p">,</span><span class="n">endNode</span><span class="p">,</span><span class="n">fromSrcNode</span><span class="p">,</span><span class="n">fromEndNode</span><span class="p">,</span><span class="n">depth</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">fromSrcNode</span> <span class="o">+</span> <span class="n">fromEndNode</span></div>
+
+<div class="viewcode-block" id="computeShortPathRec"><a class="viewcode-back" href="../ecoli.html#ecoli.computeShortPathRec">[docs]</a><span class="k">def</span> <span class="nf">computeShortPathRec</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">srcNode</span><span class="p">,</span><span class="n">endNode</span><span class="p">,</span><span class="n">fromSrcNode</span><span class="p">,</span><span class="n">fromEndNode</span><span class="p">,</span><span class="n">depth</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Recursive algorithm to roam into the tree graph and compute the shortest path between the source node and the end node.</span>
+
+<span class="sd">  This algorithm works for this specific case and we don&#39;t need to use a BFS (Breadth-First-Search) algorithm. Here each node has</span>
+<span class="sd">  only one parent, their respective clusters represented by a node. The depth, computed by this Tulip functiontlp.dagLevel(tlp.Graph,tlp.IntergerProperty),</span>
+<span class="sd">  allows to attribute a level to each node of the graph into an interger property, referenced in the function parameters. This will help to determine the three</span>
+<span class="sd">  main possibilities to go through the tree graph, and store the nodes until the recursive algorithm reaches the common ancestor (a cluster or the root node) :</span>
+<span class="sd">  - If the source node depth is bigger than the end node, then we seek and save the parent in the source list.</span>
+<span class="sd">  - If the source node depth is lower than the end node, then we seek and save the parent in the end list.</span>
+<span class="sd">  - If they are in the same depth level, then we do the two previous statement together at the same time.</span>
+<span class="sd">  The condition to exit the recusivity corresponds to the equality of the source node and the end node, which means that we have reached their </span>
+<span class="sd">  common anacestor. In this case the ancestor node will be removed from the end list (because the algorithm added it in each list) and the end list will be reversed </span>
+<span class="sd">  to get the right order of nodes.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    treeGraph (tlp.Graph) : the hierarchical tree graph </span>
+<span class="sd">    srcNode (tlp.Node) : the start node for the path</span>
+<span class="sd">    endNode (tlp.Node) : the end node for the path</span>
+<span class="sd">    fromSrcNode (list) : the list to store the path from the source node</span>
+<span class="sd">    fromEndNode (list) : the list to store the path from the end node</span>
+<span class="sd">    depth (tlp.IntegerProperty) : a property linked to an integer property &quot;depth&quot; created in the tree graph</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">srcNode</span> <span class="o">==</span> <span class="n">endNode</span><span class="p">):</span>
+    <span class="n">fromEndNode</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="n">fromEndNode</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="n">depthSource</span> <span class="o">=</span> <span class="n">depth</span><span class="p">[</span><span class="n">srcNode</span><span class="p">]</span>
+  <span class="n">depthEnd</span> <span class="o">=</span> <span class="n">depth</span><span class="p">[</span><span class="n">endNode</span><span class="p">]</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">depthSource</span> <span class="o">&gt;</span> <span class="n">depthEnd</span><span class="p">):</span>
+    <span class="n">srcNode</span> <span class="o">=</span> <span class="n">treeGraph</span><span class="o">.</span><span class="n">getInNode</span><span class="p">(</span><span class="n">srcNode</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fromSrcNode</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">srcNode</span><span class="p">)</span>
+  <span class="k">elif</span><span class="p">(</span><span class="n">depthSource</span> <span class="o">&lt;</span> <span class="n">depthEnd</span><span class="p">):</span>
+    <span class="n">endNode</span> <span class="o">=</span> <span class="n">treeGraph</span><span class="o">.</span><span class="n">getInNode</span><span class="p">(</span><span class="n">endNode</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fromEndNode</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">endNode</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">srcNode</span> <span class="o">=</span> <span class="n">treeGraph</span><span class="o">.</span><span class="n">getInNode</span><span class="p">(</span><span class="n">srcNode</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fromSrcNode</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">srcNode</span><span class="p">)</span>
+    <span class="n">endNode</span> <span class="o">=</span> <span class="n">treeGraph</span><span class="o">.</span><span class="n">getInNode</span><span class="p">(</span><span class="n">endNode</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fromEndNode</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">endNode</span><span class="p">)</span>
+  <span class="n">computeShortPathRec</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">srcNode</span><span class="p">,</span><span class="n">endNode</span><span class="p">,</span><span class="n">fromSrcNode</span><span class="p">,</span><span class="n">fromEndNode</span><span class="p">,</span><span class="n">depth</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="constructBundles"><a class="viewcode-back" href="../ecoli.html#ecoli.constructBundles">[docs]</a><span class="k">def</span> <span class="nf">constructBundles</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">,</span><span class="n">layout</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function to construct the bundles to change the layout of the edges of the gene interaction graph, according to computed control points from the tree graph.</span>
+
+<span class="sd">  For each edges of of the gene interaction graph, the algorithm will retrieve each node corresponding the the edge and compute the shortest path</span>
+<span class="sd">  between them. Then for each node stored in the path list, the coordinate of those nodes will be saved in another list in the same order. This will be</span>
+<span class="sd">  the control points of the edge, and this list will be assigned to the &quot;viewLayout&quot; property value of the edge.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    treeGraph (tlp.Graph) : the hierarchical tree graph </span>
+<span class="sd">    interactGraph (tlp.Graph) : the gene interaction graph</span>
+<span class="sd">    layout (tlp.LayoutProperty) : a property linked to the &quot;viewLayout&quot; of the root graph</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">interactGraph</span><span class="o">.</span><span class="n">getEdges</span><span class="p">():</span>
+    <span class="n">u</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">interactGraph</span><span class="o">.</span><span class="n">ends</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+    <span class="n">pathNode</span> <span class="o">=</span> <span class="n">computeShortPath</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">pathCoord</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">pathNode</span><span class="p">:</span>
+      <span class="n">pathCoord</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">])</span>
+    <span class="n">layout</span><span class="o">.</span><span class="n">setEdgeValue</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span><span class="n">pathCoord</span><span class="p">)</span></div>
+      
+<span class="c1">#===================================</span>
+<span class="c1"># PART III</span>
+<span class="c1">#===================================</span>
+<div class="viewcode-block" id="createHierarchy"><a class="viewcode-back" href="../ecoli.html#ecoli.createHierarchy">[docs]</a><span class="k">def</span> <span class="nf">createHierarchy</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">,</span><span class="n">rootGraph</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function to create a subgraphes hierarchy into the small multiple graph, which is a subragraph of the root graph. </span>
+
+<span class="sd">  Each subgraph of the small multiple graph represents the gene interaction graph at a specific time point. The values</span>
+<span class="sd">  of this time point will be stored in the double property of the subgraph &quot;viewMetric&quot;.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    smallMultGraph (tlp.Graph) : the small multiple graph </span>
+<span class="sd">    interactGraph (tlp.Graph) : the gene interaction graph</span>
+<span class="sd">    rootGraph (tlp.Graph) : the root graph of the project </span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">listNodes</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">18</span><span class="p">):</span>
+    <span class="n">tp_i</span> <span class="o">=</span> <span class="n">rootGraph</span><span class="o">.</span><span class="n">getLocalDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp</span><span class="si">{}</span><span class="s2"> s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+    <span class="n">subCopyGraph</span> <span class="o">=</span> <span class="n">smallMultGraph</span><span class="o">.</span><span class="n">addSubGraph</span><span class="p">(</span><span class="s2">&quot;tp</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+    <span class="n">tlp</span><span class="o">.</span><span class="n">copyToGraph</span><span class="p">(</span><span class="n">subCopyGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">)</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">subCopyGraph</span><span class="o">.</span><span class="n">getLocalDoubleProperty</span><span class="p">(</span><span class="s2">&quot;viewMetric&quot;</span><span class="p">)</span>
+    <span class="n">tp_i</span> <span class="o">=</span> <span class="n">rootGraph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp</span><span class="si">{}</span><span class="s2"> s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+    <span class="n">metric</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">tp_i</span><span class="p">)</span>
+    <span class="n">colorSmallMultiples</span><span class="p">(</span><span class="n">subCopyGraph</span><span class="p">,</span><span class="n">metric</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="colorSmallMultiples"><a class="viewcode-back" href="../ecoli.html#ecoli.colorSmallMultiples">[docs]</a><span class="k">def</span> <span class="nf">colorSmallMultiples</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">doubleMetric</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function to set a color for each node in the small multiple graph, depending on their respective value in the double metric property</span>
+
+<span class="sd">  To color the nodes, this function uses the &quot;Color Mapping&quot; algorithm from Tulip, with the double metric</span>
+<span class="sd">  values as input properties. Also, the ColorScaleManager from the tlpgui is used to get the &quot;BiologicalHeatMap&quot; color scale.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : the graph where the color mapping will process on</span>
+<span class="sd">    doubleMetric (tlp.DoubleProperty) : a property linked to any double properties from the graph</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">colorProp</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getLocalColorProperty</span><span class="p">(</span><span class="s2">&quot;viewColor&quot;</span><span class="p">)</span>
+  <span class="n">colorScaleMan</span> <span class="o">=</span> <span class="n">tlpgui</span><span class="o">.</span><span class="n">ColorScalesManager</span><span class="p">()</span>
+  <span class="n">colorScale</span> <span class="o">=</span> <span class="n">colorScaleMan</span><span class="o">.</span><span class="n">getColorScale</span><span class="p">(</span><span class="s2">&quot;BiologicalHeatMap&quot;</span><span class="p">)</span>
+  <span class="n">param</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">getDefaultPluginParameters</span><span class="p">(</span><span class="s2">&quot;Color Mapping&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
+  <span class="n">param</span><span class="p">[</span><span class="s2">&quot;input property&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">doubleMetric</span>
+  <span class="n">param</span><span class="p">[</span><span class="s2">&quot;color scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">colorScale</span>
+  <span class="n">graph</span><span class="o">.</span><span class="n">applyColorAlgorithm</span><span class="p">(</span><span class="s2">&quot;Color Mapping&quot;</span><span class="p">,</span> <span class="n">colorProp</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="constructGrid"><a class="viewcode-back" href="../ecoli.html#ecoli.constructGrid">[docs]</a><span class="k">def</span> <span class="nf">constructGrid</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="n">columns</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function to create the grid of the small multiple graph, and displace each small multiple according to the layout of the grid. </span>
+
+<span class="sd">  To create the grid, the bounding box of the small multiple graph is computed. Hence we can get the width and the height of a graph.</span>
+<span class="sd">  Those two parameters will be used to move each subgraph of the hierarchy in the small multiple graph according to their id order.</span>
+<span class="sd">  The translattion will be function of the product of the column by the width for the x axis. And the product of the line by the negative</span>
+<span class="sd">  form of the height for the y axis.For example, the subgraph tp1 will be placed in the coordinate (0,0) of the grid and then doesn&#39;t need to be moved. </span>
+<span class="sd">  But for tp2, this graph will be settled in the coordinate (1,1) of the grid and then be moved along the x axis by : 1 * width. This part</span>
+<span class="sd">  of the algorithm is taken care by the function &quot;drawSmallMultiple&quot;.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    smallMultGraph (tlp.Graph) : the small multiple graph </span>
+<span class="sd">    columns (integer) : the number of columns for the grid </span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">layout</span> <span class="o">=</span> <span class="n">smallMultGraph</span><span class="o">.</span><span class="n">getLayoutProperty</span><span class="p">(</span><span class="s2">&quot;viewLayout&quot;</span><span class="p">)</span>
+  <span class="n">bBox</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">computeBoundingBox</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">)</span>
+  <span class="n">numberSub</span> <span class="o">=</span> <span class="n">smallMultGraph</span><span class="o">.</span><span class="n">numberOfSubGraphs</span><span class="p">()</span>
+  <span class="n">idSubgraph</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">line</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">while</span>  <span class="n">idSubgraph</span> <span class="o">&lt;</span> <span class="n">numberSub</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">idSubgraph</span> <span class="o">&lt;</span> <span class="n">numberSub</span><span class="p">):</span>
+        <span class="n">idSubgraph</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">subGraph</span> <span class="o">=</span> <span class="n">smallMultGraph</span><span class="o">.</span><span class="n">getSubGraph</span><span class="p">(</span><span class="s2">&quot;tp</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idSubgraph</span><span class="p">))</span>
+        <span class="n">drawSmallMultiple</span><span class="p">(</span><span class="n">subGraph</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">column</span><span class="p">,</span><span class="n">bBox</span><span class="p">,</span><span class="n">layout</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">break</span>
+    <span class="n">line</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="drawSmallMultiple"><a class="viewcode-back" href="../ecoli.html#ecoli.drawSmallMultiple">[docs]</a><span class="k">def</span> <span class="nf">drawSmallMultiple</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span><span class="n">bBox</span><span class="p">,</span><span class="n">layout</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function to compute the translation to be applied on the nodes and edges of the graph passing in parameters. </span>
+
+<span class="sd">  This function permits to apply a translation to each coordinates of each node of the graph. Also, we need</span>
+<span class="sd">  to changes the control points of the edges, so the translation will be applied there too. At the end of this</span>
+<span class="sd">  function the small multiple is drawn and placed in the right coordinate in the grid.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : the future small multiple </span>
+<span class="sd">    line (integer) : the corresponding line of the grid to draw the small multiple</span>
+<span class="sd">    column (integer) : the corresponding column of the grid to draw the small multiple</span>
+<span class="sd">    bBox (tlp.BoundingBox) : class to represents the 3D bounding box of the small multiple graph</span>
+<span class="sd">    layout (tlp.LayoutProperty) : a property linked to the &quot;viewLayout&quot; of the graph</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">width</span> <span class="o">=</span> <span class="n">bBox</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+  <span class="n">height</span> <span class="o">=</span> <span class="n">bBox</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+  <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">getNodes</span><span class="p">():</span>
+    <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Coord</span><span class="p">((</span><span class="n">column</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span> <span class="o">+</span> <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">getX</span><span class="p">(),(</span><span class="n">line</span> <span class="o">*</span> <span class="o">-</span> <span class="n">height</span><span class="p">)</span> <span class="o">+</span> <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">getY</span><span class="p">(),</span><span class="mi">0</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">getEdges</span><span class="p">():</span>
+    <span class="n">newControlPoints</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">controlPoint</span> <span class="ow">in</span> <span class="n">layout</span><span class="p">[</span><span class="n">edge</span><span class="p">]:</span>
+      <span class="n">controlPoint</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Coord</span><span class="p">((</span><span class="n">column</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span> <span class="o">+</span> <span class="n">controlPoint</span><span class="o">.</span><span class="n">getX</span><span class="p">(),(</span><span class="n">line</span> <span class="o">*</span> <span class="o">-</span> <span class="n">height</span><span class="p">)</span> <span class="o">+</span> <span class="n">controlPoint</span><span class="o">.</span><span class="n">getY</span><span class="p">(),</span><span class="mi">0</span><span class="p">)</span>
+      <span class="n">newControlPoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">controlPoint</span><span class="p">)</span>
+    <span class="n">layout</span><span class="o">.</span><span class="n">setEdgeValue</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span><span class="n">newControlPoints</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="createSmallMultiples"><a class="viewcode-back" href="../ecoli.html#ecoli.createSmallMultiples">[docs]</a><span class="k">def</span> <span class="nf">createSmallMultiples</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span> <span class="n">interactGraph</span><span class="p">,</span> <span class="n">rootGraph</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Function regrouping all the previous functions to process and construct the small multiple graph.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    smallMultGraph (tlp.Graph) : the small multiple graph </span>
+<span class="sd">    interactGraph (tlp.Graph) : the gene interaction graph</span>
+<span class="sd">    rootGraph (tlp.Graph) : the root graph of the project </span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">createHierarchy</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">,</span><span class="n">rootGraph</span><span class="p">)</span>
+  <span class="n">constructGrid</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span></div>
+  
+
+<span class="c1">#===================================</span>
+<span class="c1"># MAIN</span>
+<span class="c1">#===================================</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../ecoli.html#ecoli.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span> 
+  <span class="c1"># Tulip initialization</span>
+  <span class="n">Locus</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getStringProperty</span><span class="p">(</span><span class="s2">&quot;Locus&quot;</span><span class="p">)</span>
+  <span class="n">Negative</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getBooleanProperty</span><span class="p">(</span><span class="s2">&quot;Negative&quot;</span><span class="p">)</span>
+  <span class="n">Positive</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getBooleanProperty</span><span class="p">(</span><span class="s2">&quot;Positive&quot;</span><span class="p">)</span>
+  <span class="n">similarity</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;similarity&quot;</span><span class="p">)</span>
+  <span class="n">tp1_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp1 s&quot;</span><span class="p">)</span>
+  <span class="n">tp10_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp10 s&quot;</span><span class="p">)</span>
+  <span class="n">tp11_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp11 s&quot;</span><span class="p">)</span>
+  <span class="n">tp12_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp12 s&quot;</span><span class="p">)</span>
+  <span class="n">tp13_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp13 s&quot;</span><span class="p">)</span>
+  <span class="n">tp14_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp14 s&quot;</span><span class="p">)</span>
+  <span class="n">tp15_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp15 s&quot;</span><span class="p">)</span>
+  <span class="n">tp16_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp16 s&quot;</span><span class="p">)</span>
+  <span class="n">tp17_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp17 s&quot;</span><span class="p">)</span>
+  <span class="n">tp2_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp2 s&quot;</span><span class="p">)</span>
+  <span class="n">tp3_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp3 s&quot;</span><span class="p">)</span>
+  <span class="n">tp4_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp4 s&quot;</span><span class="p">)</span>
+  <span class="n">tp5_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp5 s&quot;</span><span class="p">)</span>
+  <span class="n">tp6_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp6 s&quot;</span><span class="p">)</span>
+  <span class="n">tp7_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp7 s&quot;</span><span class="p">)</span>
+  <span class="n">tp8_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp8 s&quot;</span><span class="p">)</span>
+  <span class="n">tp9_s</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;tp9 s&quot;</span><span class="p">)</span>
+  <span class="n">viewBorderColor</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getColorProperty</span><span class="p">(</span><span class="s2">&quot;viewBorderColor&quot;</span><span class="p">)</span>
+  <span class="n">viewBorderWidth</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;viewBorderWidth&quot;</span><span class="p">)</span>
+  <span class="n">viewColor</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getColorProperty</span><span class="p">(</span><span class="s2">&quot;viewColor&quot;</span><span class="p">)</span>
+  <span class="n">viewFont</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getStringProperty</span><span class="p">(</span><span class="s2">&quot;viewFont&quot;</span><span class="p">)</span>
+  <span class="n">viewFontSize</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getIntegerProperty</span><span class="p">(</span><span class="s2">&quot;viewFontSize&quot;</span><span class="p">)</span>
+  <span class="n">viewIcon</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getStringProperty</span><span class="p">(</span><span class="s2">&quot;viewIcon&quot;</span><span class="p">)</span>
+  <span class="n">viewLabel</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getStringProperty</span><span class="p">(</span><span class="s2">&quot;viewLabel&quot;</span><span class="p">)</span>
+  <span class="n">viewLabelBorderColor</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getColorProperty</span><span class="p">(</span><span class="s2">&quot;viewLabelBorderColor&quot;</span><span class="p">)</span>
+  <span class="n">viewLabelBorderWidth</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;viewLabelBorderWidth&quot;</span><span class="p">)</span>
+  <span class="n">viewLabelColor</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getColorProperty</span><span class="p">(</span><span class="s2">&quot;viewLabelColor&quot;</span><span class="p">)</span>
+  <span class="n">viewLabelPosition</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getIntegerProperty</span><span class="p">(</span><span class="s2">&quot;viewLabelPosition&quot;</span><span class="p">)</span>
+  <span class="n">viewLayout</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getLayoutProperty</span><span class="p">(</span><span class="s2">&quot;viewLayout&quot;</span><span class="p">)</span>
+  <span class="n">viewMetric</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;viewMetric&quot;</span><span class="p">)</span>
+  <span class="n">viewRotation</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getDoubleProperty</span><span class="p">(</span><span class="s2">&quot;viewRotation&quot;</span><span class="p">)</span>
+  <span class="n">viewSelection</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getBooleanProperty</span><span class="p">(</span><span class="s2">&quot;viewSelection&quot;</span><span class="p">)</span>
+  <span class="n">viewShape</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getIntegerProperty</span><span class="p">(</span><span class="s2">&quot;viewShape&quot;</span><span class="p">)</span>
+  <span class="n">viewSize</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getSizeProperty</span><span class="p">(</span><span class="s2">&quot;viewSize&quot;</span><span class="p">)</span>
+  <span class="n">viewSrcAnchorShape</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getIntegerProperty</span><span class="p">(</span><span class="s2">&quot;viewSrcAnchorShape&quot;</span><span class="p">)</span>
+  <span class="n">viewSrcAnchorSize</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getSizeProperty</span><span class="p">(</span><span class="s2">&quot;viewSrcAnchorSize&quot;</span><span class="p">)</span>
+  <span class="n">viewTexture</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getStringProperty</span><span class="p">(</span><span class="s2">&quot;viewTexture&quot;</span><span class="p">)</span>
+  <span class="n">viewTgtAnchorShape</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getIntegerProperty</span><span class="p">(</span><span class="s2">&quot;viewTgtAnchorShape&quot;</span><span class="p">)</span>
+  <span class="n">viewTgtAnchorSize</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getSizeProperty</span><span class="p">(</span><span class="s2">&quot;viewTgtAnchorSize&quot;</span><span class="p">)</span>
+  
+  <span class="c1"># Preprocess the data</span>
+  <span class="n">rootGraph</span> <span class="o">=</span> <span class="n">graph</span>
+  <span class="n">preProcess</span><span class="p">(</span><span class="n">rootGraph</span><span class="p">,</span><span class="n">Locus</span><span class="p">,</span><span class="n">viewLabel</span><span class="p">,</span><span class="n">viewSize</span><span class="p">,</span><span class="n">viewColor</span><span class="p">,</span><span class="n">Positive</span><span class="p">,</span><span class="n">Negative</span><span class="p">,</span><span class="n">viewLayout</span><span class="p">,</span><span class="n">viewLabelColor</span><span class="p">,</span><span class="n">viewLabelBorderColor</span><span class="p">)</span>
+  
+  <span class="c1"># Create Hierarchical Tree</span>
+  <span class="n">interactGraph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getSubGraph</span><span class="p">(</span><span class="s2">&quot;Genes interactions&quot;</span><span class="p">)</span>
+  <span class="n">treeGraph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">addSubGraph</span><span class="p">(</span><span class="s2">&quot;Hierarchical Tree&quot;</span><span class="p">)</span>
+  <span class="n">constructHierachicalTree</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">)</span>
+  <span class="n">applyRadialAlgo</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">viewLayout</span><span class="p">)</span>
+  <span class="n">colorNodes</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">tp1_s</span><span class="p">)</span>
+
+  <span class="c1"># Construct bundles</span>
+  <span class="n">depth</span> <span class="o">=</span> <span class="n">treeGraph</span><span class="o">.</span><span class="n">getLocalIntegerProperty</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">);</span>
+  <span class="n">tlp</span><span class="o">.</span><span class="n">dagLevel</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">depth</span><span class="p">)</span>
+  <span class="n">constructBundles</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">,</span><span class="n">viewLayout</span><span class="p">)</span>
+
+  <span class="c1"># Create Small Multiple Graph</span>
+  <span class="n">smallMultGraph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">addSubGraph</span><span class="p">(</span><span class="s2">&quot;Small Multiples&quot;</span><span class="p">)</span>
+  <span class="n">createSmallMultiples</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span> <span class="n">interactGraph</span><span class="p">,</span> <span class="n">rootGraph</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Tulip</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, G.CLARO DE.OLIVEIRA JOUAN.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
