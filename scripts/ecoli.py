@@ -277,7 +277,7 @@ def colorSmallMultiples(graph,doubleMetric):
   Returns:
     None
   """
-  colorProp = graph.getLocalColorProperty("viewColor")
+  colorProp = graph.getColorProperty("viewColor")
   colorScaleMan = tlpgui.ColorScalesManager()
   colorScale = colorScaleMan.getColorScale("BiologicalHeatMap")
   param = tlp.getDefaultPluginParameters("Color Mapping", graph)
@@ -297,7 +297,7 @@ def constructGrid(smallMultGraph,columns):
 
   Args:
     smallMultGraph (tlp.Graph) : the small multiple graph 
-    columns (integer) : the number of columns for the grid 
+    columns (int) : the number of columns for the grid 
 
   Returns:
     None
@@ -312,12 +312,12 @@ def constructGrid(smallMultGraph,columns):
       if(idSubgraph < numberSub):
         idSubgraph += 1
         subGraph = smallMultGraph.getSubGraph("tp{}".format(idSubgraph))
-        drawSmallMultiple(subGraph,line,column,bBox,layout)
+        drawSmallMultiple(subGraph,line,column,bBox,layout,1.5)
       else:
         break
     line += 1
 
-def drawSmallMultiple(graph, line, column,bBox,layout):
+def drawSmallMultiple(graph, line, column,bBox,layout,margin):
   """ Function to compute the translation to be applied on the nodes and edges of the graph passing in parameters. 
 
   This function permits to apply a translation to each coordinates of each node of the graph. Also, we need
@@ -330,6 +330,7 @@ def drawSmallMultiple(graph, line, column,bBox,layout):
     column (integer) : the corresponding column of the grid to draw the small multiple
     bBox (tlp.BoundingBox) : class to represents the 3D bounding box of the small multiple graph
     layout (tlp.LayoutProperty) : a property linked to the "viewLayout" of the graph
+    margin (float) : the margin between each small multiple 
 
   Returns:
     None
@@ -337,11 +338,11 @@ def drawSmallMultiple(graph, line, column,bBox,layout):
   width = bBox.width()
   height = bBox.height()
   for node in graph.getNodes():
-    layout[node] = tlp.Coord((column * width) + layout[node].getX(),(line * - height) + layout[node].getY(),0)
+    layout[node] = tlp.Coord((column * width * margin) + layout[node].getX(),(line * - height * margin) + layout[node].getY(),0)
   for edge in graph.getEdges():
     newControlPoints = []
     for controlPoint in layout[edge]:
-      controlPoint = tlp.Coord((column * width) + controlPoint.getX(),(line * - height) + controlPoint.getY(),0)
+      controlPoint = tlp.Coord((column * width * margin) + controlPoint.getX(),(line * - height *margin) + controlPoint.getY(),0)
       newControlPoints.append(controlPoint)
     layout.setEdgeValue(edge,newControlPoints)
 
@@ -357,7 +358,7 @@ def createSmallMultiples(smallMultGraph, interactGraph, rootGraph):
     None
   """
   createHierarchy(smallMultGraph,interactGraph,rootGraph)
-  constructGrid(smallMultGraph,7)
+  constructGrid(smallMultGraph,5)
   
 
 #===================================
@@ -428,3 +429,4 @@ def main(graph):
   # Create Small Multiple Graph
   smallMultGraph = graph.addSubGraph("Small Multiples")
   createSmallMultiples(smallMultGraph, interactGraph, rootGraph)
+  

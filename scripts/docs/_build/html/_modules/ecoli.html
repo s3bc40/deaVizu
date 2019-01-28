@@ -311,7 +311,7 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    None</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">colorProp</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getLocalColorProperty</span><span class="p">(</span><span class="s2">&quot;viewColor&quot;</span><span class="p">)</span>
+  <span class="n">colorProp</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getColorProperty</span><span class="p">(</span><span class="s2">&quot;viewColor&quot;</span><span class="p">)</span>
   <span class="n">colorScaleMan</span> <span class="o">=</span> <span class="n">tlpgui</span><span class="o">.</span><span class="n">ColorScalesManager</span><span class="p">()</span>
   <span class="n">colorScale</span> <span class="o">=</span> <span class="n">colorScaleMan</span><span class="o">.</span><span class="n">getColorScale</span><span class="p">(</span><span class="s2">&quot;BiologicalHeatMap&quot;</span><span class="p">)</span>
   <span class="n">param</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">getDefaultPluginParameters</span><span class="p">(</span><span class="s2">&quot;Color Mapping&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
@@ -331,7 +331,7 @@
 
 <span class="sd">  Args:</span>
 <span class="sd">    smallMultGraph (tlp.Graph) : the small multiple graph </span>
-<span class="sd">    columns (integer) : the number of columns for the grid </span>
+<span class="sd">    columns (int) : the number of columns for the grid </span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    None</span>
@@ -346,12 +346,12 @@
       <span class="k">if</span><span class="p">(</span><span class="n">idSubgraph</span> <span class="o">&lt;</span> <span class="n">numberSub</span><span class="p">):</span>
         <span class="n">idSubgraph</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">subGraph</span> <span class="o">=</span> <span class="n">smallMultGraph</span><span class="o">.</span><span class="n">getSubGraph</span><span class="p">(</span><span class="s2">&quot;tp</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idSubgraph</span><span class="p">))</span>
-        <span class="n">drawSmallMultiple</span><span class="p">(</span><span class="n">subGraph</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">column</span><span class="p">,</span><span class="n">bBox</span><span class="p">,</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">drawSmallMultiple</span><span class="p">(</span><span class="n">subGraph</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">column</span><span class="p">,</span><span class="n">bBox</span><span class="p">,</span><span class="n">layout</span><span class="p">,</span><span class="mf">1.5</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="k">break</span>
     <span class="n">line</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="drawSmallMultiple"><a class="viewcode-back" href="../ecoli.html#ecoli.drawSmallMultiple">[docs]</a><span class="k">def</span> <span class="nf">drawSmallMultiple</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span><span class="n">bBox</span><span class="p">,</span><span class="n">layout</span><span class="p">):</span>
+<div class="viewcode-block" id="drawSmallMultiple"><a class="viewcode-back" href="../ecoli.html#ecoli.drawSmallMultiple">[docs]</a><span class="k">def</span> <span class="nf">drawSmallMultiple</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span><span class="n">bBox</span><span class="p">,</span><span class="n">layout</span><span class="p">,</span><span class="n">margin</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot; Function to compute the translation to be applied on the nodes and edges of the graph passing in parameters. </span>
 
 <span class="sd">  This function permits to apply a translation to each coordinates of each node of the graph. Also, we need</span>
@@ -364,6 +364,7 @@
 <span class="sd">    column (integer) : the corresponding column of the grid to draw the small multiple</span>
 <span class="sd">    bBox (tlp.BoundingBox) : class to represents the 3D bounding box of the small multiple graph</span>
 <span class="sd">    layout (tlp.LayoutProperty) : a property linked to the &quot;viewLayout&quot; of the graph</span>
+<span class="sd">    margin (float) : the margin between each small multiple </span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    None</span>
@@ -371,11 +372,11 @@
   <span class="n">width</span> <span class="o">=</span> <span class="n">bBox</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
   <span class="n">height</span> <span class="o">=</span> <span class="n">bBox</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
   <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">getNodes</span><span class="p">():</span>
-    <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Coord</span><span class="p">((</span><span class="n">column</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span> <span class="o">+</span> <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">getX</span><span class="p">(),(</span><span class="n">line</span> <span class="o">*</span> <span class="o">-</span> <span class="n">height</span><span class="p">)</span> <span class="o">+</span> <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">getY</span><span class="p">(),</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Coord</span><span class="p">((</span><span class="n">column</span> <span class="o">*</span> <span class="n">width</span> <span class="o">*</span> <span class="n">margin</span><span class="p">)</span> <span class="o">+</span> <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">getX</span><span class="p">(),(</span><span class="n">line</span> <span class="o">*</span> <span class="o">-</span> <span class="n">height</span> <span class="o">*</span> <span class="n">margin</span><span class="p">)</span> <span class="o">+</span> <span class="n">layout</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">getY</span><span class="p">(),</span><span class="mi">0</span><span class="p">)</span>
   <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">getEdges</span><span class="p">():</span>
     <span class="n">newControlPoints</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">controlPoint</span> <span class="ow">in</span> <span class="n">layout</span><span class="p">[</span><span class="n">edge</span><span class="p">]:</span>
-      <span class="n">controlPoint</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Coord</span><span class="p">((</span><span class="n">column</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span> <span class="o">+</span> <span class="n">controlPoint</span><span class="o">.</span><span class="n">getX</span><span class="p">(),(</span><span class="n">line</span> <span class="o">*</span> <span class="o">-</span> <span class="n">height</span><span class="p">)</span> <span class="o">+</span> <span class="n">controlPoint</span><span class="o">.</span><span class="n">getY</span><span class="p">(),</span><span class="mi">0</span><span class="p">)</span>
+      <span class="n">controlPoint</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Coord</span><span class="p">((</span><span class="n">column</span> <span class="o">*</span> <span class="n">width</span> <span class="o">*</span> <span class="n">margin</span><span class="p">)</span> <span class="o">+</span> <span class="n">controlPoint</span><span class="o">.</span><span class="n">getX</span><span class="p">(),(</span><span class="n">line</span> <span class="o">*</span> <span class="o">-</span> <span class="n">height</span> <span class="o">*</span><span class="n">margin</span><span class="p">)</span> <span class="o">+</span> <span class="n">controlPoint</span><span class="o">.</span><span class="n">getY</span><span class="p">(),</span><span class="mi">0</span><span class="p">)</span>
       <span class="n">newControlPoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">controlPoint</span><span class="p">)</span>
     <span class="n">layout</span><span class="o">.</span><span class="n">setEdgeValue</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span><span class="n">newControlPoints</span><span class="p">)</span></div>
 
@@ -391,7 +392,7 @@
 <span class="sd">    None</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">createHierarchy</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">,</span><span class="n">rootGraph</span><span class="p">)</span>
-  <span class="n">constructGrid</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span></div>
+  <span class="n">constructGrid</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span></div>
   
 
 <span class="c1">#===================================</span>
@@ -462,6 +463,7 @@
   <span class="c1"># Create Small Multiple Graph</span>
   <span class="n">smallMultGraph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">addSubGraph</span><span class="p">(</span><span class="s2">&quot;Small Multiples&quot;</span><span class="p">)</span>
   <span class="n">createSmallMultiples</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span> <span class="n">interactGraph</span><span class="p">,</span> <span class="n">rootGraph</span><span class="p">)</span></div>
+  
 </pre></div>
 
           </div>
