@@ -177,11 +177,12 @@ def computeShortPathRec(treeGraph,srcNode,endNode,fromSrcNode,fromEndNode,depth)
   only one parent, their respective clusters represented by a node. The depth, computed by this Tulip functiontlp.dagLevel(tlp.Graph,tlp.IntergerProperty),
   allows to attribute a level to each node of the graph into an interger property, referenced in the function parameters. This will help to determine the three
   main possibilities to go through the tree graph, and store the nodes until the recursive algorithm reaches the common ancestor (a cluster or the root node) :
-  - If the source node depth is bigger than the end node, then we store the source node in the source list and we seek and save the parent.
-  - If the source node depth is lower than the end node, then we store the end node in the end list and we seek and save the parent.
+  - If the source node depth is bigger than the end node, then we seek and save the parent in the source list.
+  - If the source node depth is lower than the end node, then we seek and save the parent in the end list.
   - If they are in the same depth level, then we do the two previous statement together at the same time.
   The condition to exit the recusivity corresponds to the equality of the source node and the end node, which means that we have reached their 
-  common anacestor. In this case the ancestor node will be store in the source list and the end list will be reversed to get the right order of nodes.
+  common anacestor. In this case the ancestor node will be removed from the end list (because the algorithm added it in each list) and the end list will be reversed 
+  to get the right order of nodes.
 
   Args:
     treeGraph (tlp.Graph) : the hierarchical tree graph 
