@@ -360,6 +360,20 @@ def createSmallMultiples(smallMultGraph, interactGraph, rootGraph):
   createHierarchy(smallMultGraph,interactGraph,rootGraph)
   constructGrid(smallMultGraph,5)
   
+def createView(graph):
+  """ Create another view in the gui of Tulip.
+
+  Args:
+    graph (tlp.Graph) : the graph to show
+  
+  Returns:
+    None
+  """
+  view = tlpgui.createNodeLinkDiagramView(graph)
+  parameters = view.getRenderingParameters()
+  parameters.setLabelFixedFontSize(True)
+  parameters.setEdgeColorInterpolate(False)
+  view.setRenderingParameters(parameters)
 
 #===================================
 # MAIN
@@ -430,3 +444,6 @@ def main(graph):
   smallMultGraph = graph.addSubGraph("Small Multiples")
   createSmallMultiples(smallMultGraph, interactGraph, rootGraph)
   
+  # Create views for gene interaction and hierarchical tree graph
+  createView(interactGraph)
+  createView(treeGraph)

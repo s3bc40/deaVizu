@@ -394,6 +394,20 @@
   <span class="n">createHierarchy</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">,</span><span class="n">rootGraph</span><span class="p">)</span>
   <span class="n">constructGrid</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span></div>
   
+<div class="viewcode-block" id="createView"><a class="viewcode-back" href="../ecoli.html#ecoli.createView">[docs]</a><span class="k">def</span> <span class="nf">createView</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Create another view in the gui of Tulip.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : the graph to show</span>
+<span class="sd">  </span>
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">view</span> <span class="o">=</span> <span class="n">tlpgui</span><span class="o">.</span><span class="n">createNodeLinkDiagramView</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+  <span class="n">parameters</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getRenderingParameters</span><span class="p">()</span>
+  <span class="n">parameters</span><span class="o">.</span><span class="n">setLabelFixedFontSize</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+  <span class="n">parameters</span><span class="o">.</span><span class="n">setEdgeColorInterpolate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+  <span class="n">view</span><span class="o">.</span><span class="n">setRenderingParameters</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span></div>
 
 <span class="c1">#===================================</span>
 <span class="c1"># MAIN</span>
@@ -462,8 +476,11 @@
 
   <span class="c1"># Create Small Multiple Graph</span>
   <span class="n">smallMultGraph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">addSubGraph</span><span class="p">(</span><span class="s2">&quot;Small Multiples&quot;</span><span class="p">)</span>
-  <span class="n">createSmallMultiples</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span> <span class="n">interactGraph</span><span class="p">,</span> <span class="n">rootGraph</span><span class="p">)</span></div>
+  <span class="n">createSmallMultiples</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span> <span class="n">interactGraph</span><span class="p">,</span> <span class="n">rootGraph</span><span class="p">)</span>
   
+  <span class="c1"># Create views for gene interaction and hierarchical tree graph</span>
+  <span class="n">createView</span><span class="p">(</span><span class="n">interactGraph</span><span class="p">)</span>
+  <span class="n">createView</span><span class="p">(</span><span class="n">treeGraph</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
