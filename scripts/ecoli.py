@@ -14,6 +14,8 @@
 #   * Ctrl + Space  : show auto-completion dialog.
 
 from tulip import tlp
+import urllib
+import re
 
 # The updateVisualization(centerViews = True) function can be called
 # during script execution to update the opened views
@@ -359,7 +361,73 @@ def createSmallMultiples(smallMultGraph, interactGraph, rootGraph):
   """
   createHierarchy(smallMultGraph,interactGraph,rootGraph)
   constructGrid(smallMultGraph,5)
-  
+
+def getLocus(graph):
+	locus = graph.getStringProperty("Locus")
+	locusList = []
+	for node in graph.getNodes():
+		locusList.append(locus[node])
+	return locusList
+
+def readGeneRegulonDB(graph,bdd,locusList):
+  geneProd = urllib.urlopen("http://regulondb.ccg.unam.mx/menu/download/datasets/files/GeneProductSet.txt")
+  for line in geneProd:
+  	    if(re.match("^#",line)):
+  				continue
+  	    line = line.strip()
+  	    lineSplit = line.split("\t")
+  	    for loci in bdd:
+  		if(loci == lineSplit[0] and len(lineSplit) >= 7):
+  		    bdd[loci]["gene"] = lineSplit[1]
+  		    bdd[loci]["product"] = lineSplit[6]
+
+def readGrowthRegulonDB(graph,bdd,locusList):
+  growth = urllib.urlopen("http://regulondb.ccg.unam.mx/menu/download/datasets/files/GCSet.txt")
+  for line in growth:
+	    if(re.match("^#",line)):
+		continue
+	    line = line.strip()
+	    lineSplit = line.split("\t")
+	    for loci in bdd:
+		if(bdd[loci]["gene"] == lineSplit[5]):
+			conditionGrowth = {
+		        "condition" : None,
+		        "effect" : None
+		        }       
+			conditionGrowth["condition"] = lineSplit[1]
+			conditionGrowth["effect"] = lineSplit[6]
+			bdd[loci]["growth"].append(conditionGrowth)
+
+def getDataRegulonDB(graph):
+	bdd = {}
+	locusList = getLocus(graph)
+	for locus in range(len(locusList)):
+		loci = {
+			"gene" : None,
+			"product" : None,
+			"growth" : []
+		}
+		bdd[locusList[locus]]= loci
+	readGeneRegulonDB(graph,bdd,locusList)
+	readGrowthRegulonDB(graph,bdd,locusList)
+	return bdd
+	
+def saveLocusInfo(graph,bdd):
+	locus = getLocus(graph)
+	with open("resultGrowth.txt","w") as file:
+		for loci in locus:
+			file.write("=================================\n")
+			file.write("Loci {} :\n".format(loci))
+			file.write("\t Gene : {}\n".format(bdd[loci]["gene"]))
+			file.write("\t Gene product : {}\n".format(bdd[loci]["product"]))
+			noRepeat = []
+			for growth in bdd[loci]["growth"]:
+				if(growth["condition"] not in noRepeat):
+					noRepeat.append(growth["condition"])
+					file.write("\t Growth condition : {}\n".format(growth["condition"]))
+					file.write("\t Growth effect on gene : {}\n".format(growth["effect"]))
+			file.write("End loci {}\n".format(loci))
+	
 def createView(graph):
   """ Create another view in the gui of Tulip.
 
@@ -443,6 +511,10 @@ def main(graph):
   # Create Small Multiple Graph
   smallMultGraph = graph.addSubGraph("Small Multiples")
   createSmallMultiples(smallMultGraph, interactGraph, rootGraph)
+  
+  # Get data from regulon and color graph
+  bdd = getDataRegulonDB(graph)
+  saveLocusInfo(graph,bdd)
   
   # Create views for gene interaction and hierarchical tree graph
   createView(interactGraph)
