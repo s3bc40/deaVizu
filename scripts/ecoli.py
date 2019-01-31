@@ -146,7 +146,7 @@ def colorNodes(graph,doubleMetric):
   """
   colorProp = graph.getColorProperty("viewColor")
   colorScale = tlp.ColorScale([])
-  colors = [tlp.Color.Green ,tlp.Color.Black,tlp.Color.Red]
+  colors = [tlp.Color.BlueViolet ,tlp.Color.Cyan,tlp.Color.Amber]
   colorScale.setColorScale(colors)
   param = tlp.getDefaultPluginParameters("Color Mapping", graph)
   param["input property"] = doubleMetric
@@ -280,8 +280,9 @@ def colorSmallMultiples(graph,doubleMetric):
     None
   """
   colorProp = graph.getColorProperty("viewColor")
-  colorScaleMan = tlpgui.ColorScalesManager()
-  colorScale = colorScaleMan.getColorScale("BiologicalHeatMap")
+  colorScale = tlp.ColorScale([])
+  colors = [tlp.Color.Red ,tlp.Color.Black,tlp.Color.Green]
+  colorScale.setColorScale(colors)
   param = tlp.getDefaultPluginParameters("Color Mapping", graph)
   param["input property"] = doubleMetric
   param["color scale"] = colorScale
