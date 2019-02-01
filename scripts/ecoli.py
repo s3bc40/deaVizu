@@ -30,7 +30,8 @@ import re
 # The main(graph) function must be defined 
 # to run the script on the current graph
 
-# Link to doc : 
+# Link to gitHub page : https://github.com/s3bc40/deaVizu
+# Doc available on the symlin "doc.html"
 
 #===================================
 # PART I
