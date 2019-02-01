@@ -30,9 +30,26 @@ import re
 # The main(graph) function must be defined 
 # to run the script on the current graph
 
+# Link to doc : 
+
 #===================================
 # PART I
 #===================================
+def createView(graph):
+  """ Create another view in the gui of Tulip.
+
+  Args:
+    graph (tlp.Graph) : the graph to show
+  
+  Returns:
+    None
+  """
+  view = tlpgui.createNodeLinkDiagramView(graph)
+  parameters = view.getRenderingParameters()
+  parameters.setLabelFixedFontSize(True)
+  parameters.setEdgeColorInterpolate(False)
+  view.setRenderingParameters(parameters)
+  
 def preProcess(graph,locus,label,size,color,regPositive,regNegative,layout,labelColor,labelBorderColor):
   """ Function for preprocessing the root graph before applying main algorithms.
 
@@ -56,6 +73,8 @@ def preProcess(graph,locus,label,size,color,regPositive,regNegative,layout,label
   Returns:
     None
   """
+  tlpgui.closeAllViews()
+  createView(graph)
   for edge in graph.getEdges():
     if(regNegative[edge] == True and regPositive[edge] == False):
       color[edge] = tlp.Color.Red
@@ -67,9 +86,9 @@ def preProcess(graph,locus,label,size,color,regPositive,regNegative,layout,label
       color[edge] = tlp.Color.Amber
   label.copy(locus)
   color.setAllNodeValue(tlp.Color.Gray)
-  labelColor.setAllNodeValue(tlp.Color.White)
-  labelBorderColor.setAllNodeValue(tlp.Color.White)
-  size.setAllNodeValue(tlp.Size(5,5,0))
+  labelColor.setAllNodeValue(tlp.Color.SlateGray)
+  labelBorderColor.setAllNodeValue(tlp.Color.SlateGray)
+  size.setAllNodeValue(tlp.Size(5,5,5))  
   graph.applyLayoutAlgorithm("Random layout",layout)
 
 #===================================
@@ -364,6 +383,14 @@ def createSmallMultiples(smallMultGraph, interactGraph, rootGraph):
   constructGrid(smallMultGraph,5)
 
 def getLocus(graph):
+	""" Get the locus names from "Locus" property in a list.
+
+  Args:
+    graph (tlp.Graph) : a graph with the required locus names
+
+  Returns:
+    None
+  """
 	locus = graph.getStringProperty("Locus")
 	locusList = []
 	for node in graph.getNodes():
@@ -371,35 +398,64 @@ def getLocus(graph):
 	return locusList
 
 def readGeneRegulonDB(graph,bdd,locusList):
+  """ Read the file text, available in RegulonDB computer server, concerning the genes and their products from a locus name.
+
+  Args:
+    graph (tlp.Graph) : a graph with the required locus names
+    bdd (dict) : a dictionnary where all the informations about one locus are saved
+    locusList (list) : a list where all the locus names are stored
+
+  Returns:
+    None
+  """
   geneProd = urllib.urlopen("http://regulondb.ccg.unam.mx/menu/download/datasets/files/GeneProductSet.txt")
   for line in geneProd:
-  	    if(re.match("^#",line)):
-  				continue
-  	    line = line.strip()
-  	    lineSplit = line.split("\t")
-  	    for loci in bdd:
-  		if(loci == lineSplit[0] and len(lineSplit) >= 7):
-  		    bdd[loci]["gene"] = lineSplit[1]
-  		    bdd[loci]["product"] = lineSplit[6]
+    if(re.match("^#",line)):
+      continue
+    line = line.strip()
+    lineSplit = line.split("\t")
+    for loci in bdd:
+      if(loci == lineSplit[0] and len(lineSplit) >= 7):
+        bdd[loci]["gene"] = lineSplit[1]
+        bdd[loci]["product"] = lineSplit[6]
 
 def readGrowthRegulonDB(graph,bdd,locusList):
+  """ Read the file text, available in RegulonDB computer server, concerning the growth conditions from a gene name.
+
+  Args:
+    graph (tlp.Graph) : a graph with the required locus names
+    bdd (dict) : a dictionnary where all the informations about one locus are saved
+    locusList (list) : a list where all the locus names are stored
+
+  Returns:
+    None
+  """
   growth = urllib.urlopen("http://regulondb.ccg.unam.mx/menu/download/datasets/files/GCSet.txt")
   for line in growth:
-	    if(re.match("^#",line)):
-		continue
-	    line = line.strip()
-	    lineSplit = line.split("\t")
-	    for loci in bdd:
-		if(bdd[loci]["gene"] == lineSplit[5]):
-			conditionGrowth = {
-		        "condition" : None,
-		        "effect" : None
-		        }       
-			conditionGrowth["condition"] = lineSplit[1]
-			conditionGrowth["effect"] = lineSplit[6]
-			bdd[loci]["growth"].append(conditionGrowth)
+    if(re.match("^#",line)):
+      continue
+    line = line.strip()
+    lineSplit = line.split("\t")
+    for loci in bdd:
+      if(bdd[loci]["gene"] == lineSplit[5]):
+        conditionGrowth = {
+				    "condition" : None,
+				    "effect" : None
+				}
+        conditionGrowth["condition"] = lineSplit[1]
+        conditionGrowth["effect"] = lineSplit[6]
+        bdd[loci]["growth"].append(conditionGrowth)
 
 def getDataRegulonDB(graph):
+	""" Retrieve the data from RegulonDB computer server, and permit to identify genes and annotate them from the locus names
+
+  Args:
+    graph (tlp.Graph) : a graph with the required locus names
+
+  Returns:
+    A dictionnary with each object representing a loci with the corresponding gene and annotations.
+    bdd (dict)
+  """
 	bdd = {}
 	locusList = getLocus(graph)
 	for locus in range(len(locusList)):
@@ -414,6 +470,15 @@ def getDataRegulonDB(graph):
 	return bdd
 	
 def saveLocusInfo(graph,bdd):
+	""" Save the dictionnary with all results in a text file called 'resultGrowth.txt'.
+
+  Args:
+    graph (tlp.Graph) : a graph with the required locus names
+    bdd (dict) : a dictionnary where all the informations about one locus are saved
+
+  Returns:
+    None
+  """
 	locus = getLocus(graph)
 	with open("resultGrowth.txt","w") as file:
 		for loci in locus:
@@ -428,21 +493,6 @@ def saveLocusInfo(graph,bdd):
 					file.write("\t Growth condition : {}\n".format(growth["condition"]))
 					file.write("\t Growth effect on gene : {}\n".format(growth["effect"]))
 			file.write("End loci {}\n".format(loci))
-	
-def createView(graph):
-  """ Create another view in the gui of Tulip.
-
-  Args:
-    graph (tlp.Graph) : the graph to show
-  
-  Returns:
-    None
-  """
-  view = tlpgui.createNodeLinkDiagramView(graph)
-  parameters = view.getRenderingParameters()
-  parameters.setLabelFixedFontSize(True)
-  parameters.setEdgeColorInterpolate(False)
-  view.setRenderingParameters(parameters)
 
 #===================================
 # MAIN

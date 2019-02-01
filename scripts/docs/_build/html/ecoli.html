@@ -351,6 +351,39 @@ function the small multiple is drawn and placed in the right coordinate in the g
 </dd></dl>
 
 <dl class="function">
+<dt id="ecoli.getDataRegulonDB">
+<code class="descclassname">ecoli.</code><code class="descname">getDataRegulonDB</code><span class="sig-paren">(</span><em>graph</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ecoli.html#getDataRegulonDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ecoli.getDataRegulonDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the data from RegulonDB computer server, and permit to identify genes and annotate them from the locus names</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>graph</strong> (<em>tlp.Graph</em>) – a graph with the required locus names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionnary with each object representing a loci with the corresponding gene and annotations.
+bdd (dict)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ecoli.getLocus">
+<code class="descclassname">ecoli.</code><code class="descname">getLocus</code><span class="sig-paren">(</span><em>graph</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ecoli.html#getLocus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ecoli.getLocus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the locus names from “Locus” property in a list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>graph</strong> (<em>tlp.Graph</em>) – a graph with the required locus names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="ecoli.main">
 <code class="descclassname">ecoli.</code><code class="descname">main</code><span class="sig-paren">(</span><em>graph</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ecoli.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ecoli.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -378,6 +411,71 @@ And finally, a layout algorithm, here the “Random Layout”, to store a positi
 <li><strong>layout</strong> (<em>tlp.LayoutProperty</em>) – a property linked to the “viewLayout” of the root graph</li>
 <li><strong>labelColor</strong> (<em>tlp.ColorProperty</em>) – a property linked to the “viewLabelColor” of the root graph</li>
 <li><strong>labelBorderColor</strong> (<em>tlp.ColorProperty</em>) – a property linked to the “viewLabelBorderColor” of the root graph</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ecoli.readGeneRegulonDB">
+<code class="descclassname">ecoli.</code><code class="descname">readGeneRegulonDB</code><span class="sig-paren">(</span><em>graph</em>, <em>bdd</em>, <em>locusList</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ecoli.html#readGeneRegulonDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ecoli.readGeneRegulonDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the file text, available in RegulonDB computer server, concerning the genes and their products from a locus name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>graph</strong> (<em>tlp.Graph</em>) – a graph with the required locus names</li>
+<li><strong>bdd</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – a dictionnary where all the informations about one locus are saved</li>
+<li><strong>locusList</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – a list where all the locus names are stored</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ecoli.readGrowthRegulonDB">
+<code class="descclassname">ecoli.</code><code class="descname">readGrowthRegulonDB</code><span class="sig-paren">(</span><em>graph</em>, <em>bdd</em>, <em>locusList</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ecoli.html#readGrowthRegulonDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ecoli.readGrowthRegulonDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the file text, available in RegulonDB computer server, concerning the growth conditions from a gene name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>graph</strong> (<em>tlp.Graph</em>) – a graph with the required locus names</li>
+<li><strong>bdd</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – a dictionnary where all the informations about one locus are saved</li>
+<li><strong>locusList</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – a list where all the locus names are stored</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ecoli.saveLocusInfo">
+<code class="descclassname">ecoli.</code><code class="descname">saveLocusInfo</code><span class="sig-paren">(</span><em>graph</em>, <em>bdd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ecoli.html#saveLocusInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ecoli.saveLocusInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the dictionnary with all results in a text file called ‘resultGrowth.txt’.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>graph</strong> (<em>tlp.Graph</em>) – a graph with the required locus names</li>
+<li><strong>bdd</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – a dictionnary where all the informations about one locus are saved</li>
 </ul>
 </td>
 </tr>

@@ -48,6 +48,8 @@
 <span class="c1">#   * Ctrl + Space  : show auto-completion dialog.</span>
 
 <span class="c1">#from tulip import tlp</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">re</span>
 
 <span class="c1"># The updateVisualization(centerViews = True) function can be called</span>
 <span class="c1"># during script execution to update the opened views</span>
@@ -65,6 +67,21 @@
 <span class="c1">#===================================</span>
 <span class="c1"># PART I</span>
 <span class="c1">#===================================</span>
+<div class="viewcode-block" id="createView"><a class="viewcode-back" href="../ecoli.html#ecoli.createView">[docs]</a><span class="k">def</span> <span class="nf">createView</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Create another view in the gui of Tulip.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : the graph to show</span>
+<span class="sd">  </span>
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">view</span> <span class="o">=</span> <span class="n">tlpgui</span><span class="o">.</span><span class="n">createNodeLinkDiagramView</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+  <span class="n">parameters</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getRenderingParameters</span><span class="p">()</span>
+  <span class="n">parameters</span><span class="o">.</span><span class="n">setLabelFixedFontSize</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+  <span class="n">parameters</span><span class="o">.</span><span class="n">setEdgeColorInterpolate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+  <span class="n">view</span><span class="o">.</span><span class="n">setRenderingParameters</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span></div>
+  
 <div class="viewcode-block" id="preProcess"><a class="viewcode-back" href="../ecoli.html#ecoli.preProcess">[docs]</a><span class="k">def</span> <span class="nf">preProcess</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">locus</span><span class="p">,</span><span class="n">label</span><span class="p">,</span><span class="n">size</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">regPositive</span><span class="p">,</span><span class="n">regNegative</span><span class="p">,</span><span class="n">layout</span><span class="p">,</span><span class="n">labelColor</span><span class="p">,</span><span class="n">labelBorderColor</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot; Function for preprocessing the root graph before applying main algorithms.</span>
 
@@ -88,6 +105,8 @@
 <span class="sd">  Returns:</span>
 <span class="sd">    None</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">tlpgui</span><span class="o">.</span><span class="n">closeAllViews</span><span class="p">()</span>
+  <span class="n">createView</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
   <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">getEdges</span><span class="p">():</span>
     <span class="k">if</span><span class="p">(</span><span class="n">regNegative</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">regPositive</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">):</span>
       <span class="n">color</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Red</span>
@@ -99,9 +118,9 @@
       <span class="n">color</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Amber</span>
   <span class="n">label</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">locus</span><span class="p">)</span>
   <span class="n">color</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Gray</span><span class="p">)</span>
-  <span class="n">labelColor</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">White</span><span class="p">)</span>
-  <span class="n">labelBorderColor</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">White</span><span class="p">)</span>
-  <span class="n">size</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+  <span class="n">labelColor</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">SlateGray</span><span class="p">)</span>
+  <span class="n">labelBorderColor</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">SlateGray</span><span class="p">)</span>
+  <span class="n">size</span><span class="o">.</span><span class="n">setAllNodeValue</span><span class="p">(</span><span class="n">tlp</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>  
   <span class="n">graph</span><span class="o">.</span><span class="n">applyLayoutAlgorithm</span><span class="p">(</span><span class="s2">&quot;Random layout&quot;</span><span class="p">,</span><span class="n">layout</span><span class="p">)</span></div>
 
 <span class="c1">#===================================</span>
@@ -178,7 +197,7 @@
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">colorProp</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getColorProperty</span><span class="p">(</span><span class="s2">&quot;viewColor&quot;</span><span class="p">)</span>
   <span class="n">colorScale</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">ColorScale</span><span class="p">([])</span>
-  <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Green</span> <span class="p">,</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Black</span><span class="p">,</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Red</span><span class="p">]</span>
+  <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">BlueViolet</span> <span class="p">,</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Cyan</span><span class="p">,</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Amber</span><span class="p">]</span>
   <span class="n">colorScale</span><span class="o">.</span><span class="n">setColorScale</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
   <span class="n">param</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">getDefaultPluginParameters</span><span class="p">(</span><span class="s2">&quot;Color Mapping&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
   <span class="n">param</span><span class="p">[</span><span class="s2">&quot;input property&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">doubleMetric</span>
@@ -312,8 +331,9 @@
 <span class="sd">    None</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">colorProp</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getColorProperty</span><span class="p">(</span><span class="s2">&quot;viewColor&quot;</span><span class="p">)</span>
-  <span class="n">colorScaleMan</span> <span class="o">=</span> <span class="n">tlpgui</span><span class="o">.</span><span class="n">ColorScalesManager</span><span class="p">()</span>
-  <span class="n">colorScale</span> <span class="o">=</span> <span class="n">colorScaleMan</span><span class="o">.</span><span class="n">getColorScale</span><span class="p">(</span><span class="s2">&quot;BiologicalHeatMap&quot;</span><span class="p">)</span>
+  <span class="n">colorScale</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">ColorScale</span><span class="p">([])</span>
+  <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Red</span> <span class="p">,</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Black</span><span class="p">,</span><span class="n">tlp</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">Green</span><span class="p">]</span>
+  <span class="n">colorScale</span><span class="o">.</span><span class="n">setColorScale</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
   <span class="n">param</span> <span class="o">=</span> <span class="n">tlp</span><span class="o">.</span><span class="n">getDefaultPluginParameters</span><span class="p">(</span><span class="s2">&quot;Color Mapping&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
   <span class="n">param</span><span class="p">[</span><span class="s2">&quot;input property&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">doubleMetric</span>
   <span class="n">param</span><span class="p">[</span><span class="s2">&quot;color scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">colorScale</span>
@@ -393,21 +413,118 @@
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">createHierarchy</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="n">interactGraph</span><span class="p">,</span><span class="n">rootGraph</span><span class="p">)</span>
   <span class="n">constructGrid</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span></div>
-  
-<div class="viewcode-block" id="createView"><a class="viewcode-back" href="../ecoli.html#ecoli.createView">[docs]</a><span class="k">def</span> <span class="nf">createView</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot; Create another view in the gui of Tulip.</span>
+
+<div class="viewcode-block" id="getLocus"><a class="viewcode-back" href="../ecoli.html#ecoli.getLocus">[docs]</a><span class="k">def</span> <span class="nf">getLocus</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot; Get the locus names from &quot;Locus&quot; property in a list.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    graph (tlp.Graph) : the graph to show</span>
-<span class="sd">  </span>
+<span class="sd">    graph (tlp.Graph) : a graph with the required locus names</span>
+
 <span class="sd">  Returns:</span>
 <span class="sd">    None</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">view</span> <span class="o">=</span> <span class="n">tlpgui</span><span class="o">.</span><span class="n">createNodeLinkDiagramView</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
-  <span class="n">parameters</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getRenderingParameters</span><span class="p">()</span>
-  <span class="n">parameters</span><span class="o">.</span><span class="n">setLabelFixedFontSize</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-  <span class="n">parameters</span><span class="o">.</span><span class="n">setEdgeColorInterpolate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-  <span class="n">view</span><span class="o">.</span><span class="n">setRenderingParameters</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span></div>
+	<span class="n">locus</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">getStringProperty</span><span class="p">(</span><span class="s2">&quot;Locus&quot;</span><span class="p">)</span>
+	<span class="n">locusList</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">getNodes</span><span class="p">():</span>
+		<span class="n">locusList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">locus</span><span class="p">[</span><span class="n">node</span><span class="p">])</span>
+	<span class="k">return</span> <span class="n">locusList</span></div>
+
+<div class="viewcode-block" id="readGeneRegulonDB"><a class="viewcode-back" href="../ecoli.html#ecoli.readGeneRegulonDB">[docs]</a><span class="k">def</span> <span class="nf">readGeneRegulonDB</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">bdd</span><span class="p">,</span><span class="n">locusList</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Read the file text, available in RegulonDB computer server, concerning the genes and their products from a locus name.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : a graph with the required locus names</span>
+<span class="sd">    bdd (dict) : a dictionnary where all the informations about one locus are saved</span>
+<span class="sd">    locusList (list) : a list where all the locus names are stored</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">geneProd</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s2">&quot;http://regulondb.ccg.unam.mx/menu/download/datasets/files/GeneProductSet.txt&quot;</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">geneProd</span><span class="p">:</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^#&quot;</span><span class="p">,</span><span class="n">line</span><span class="p">)):</span>
+      <span class="k">continue</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">lineSplit</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">loci</span> <span class="ow">in</span> <span class="n">bdd</span><span class="p">:</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">loci</span> <span class="o">==</span> <span class="n">lineSplit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">lineSplit</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">):</span>
+        <span class="n">bdd</span><span class="p">[</span><span class="n">loci</span><span class="p">][</span><span class="s2">&quot;gene&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lineSplit</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">bdd</span><span class="p">[</span><span class="n">loci</span><span class="p">][</span><span class="s2">&quot;product&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lineSplit</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="readGrowthRegulonDB"><a class="viewcode-back" href="../ecoli.html#ecoli.readGrowthRegulonDB">[docs]</a><span class="k">def</span> <span class="nf">readGrowthRegulonDB</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">bdd</span><span class="p">,</span><span class="n">locusList</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Read the file text, available in RegulonDB computer server, concerning the growth conditions from a gene name.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : a graph with the required locus names</span>
+<span class="sd">    bdd (dict) : a dictionnary where all the informations about one locus are saved</span>
+<span class="sd">    locusList (list) : a list where all the locus names are stored</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">growth</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s2">&quot;http://regulondb.ccg.unam.mx/menu/download/datasets/files/GCSet.txt&quot;</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">growth</span><span class="p">:</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^#&quot;</span><span class="p">,</span><span class="n">line</span><span class="p">)):</span>
+      <span class="k">continue</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">lineSplit</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">loci</span> <span class="ow">in</span> <span class="n">bdd</span><span class="p">:</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">bdd</span><span class="p">[</span><span class="n">loci</span><span class="p">][</span><span class="s2">&quot;gene&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">lineSplit</span><span class="p">[</span><span class="mi">5</span><span class="p">]):</span>
+        <span class="n">conditionGrowth</span> <span class="o">=</span> <span class="p">{</span>
+				    <span class="s2">&quot;condition&quot;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+				    <span class="s2">&quot;effect&quot;</span> <span class="p">:</span> <span class="kc">None</span>
+				<span class="p">}</span>
+        <span class="n">conditionGrowth</span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lineSplit</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">conditionGrowth</span><span class="p">[</span><span class="s2">&quot;effect&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lineSplit</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+        <span class="n">bdd</span><span class="p">[</span><span class="n">loci</span><span class="p">][</span><span class="s2">&quot;growth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conditionGrowth</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getDataRegulonDB"><a class="viewcode-back" href="../ecoli.html#ecoli.getDataRegulonDB">[docs]</a><span class="k">def</span> <span class="nf">getDataRegulonDB</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot; Retrieve the data from RegulonDB computer server, and permit to identify genes and annotate them from the locus names</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : a graph with the required locus names</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A dictionnary with each object representing a loci with the corresponding gene and annotations.</span>
+<span class="sd">    bdd (dict)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+	<span class="n">bdd</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">locusList</span> <span class="o">=</span> <span class="n">getLocus</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">locus</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">locusList</span><span class="p">)):</span>
+		<span class="n">loci</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s2">&quot;gene&quot;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+			<span class="s2">&quot;product&quot;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+			<span class="s2">&quot;growth&quot;</span> <span class="p">:</span> <span class="p">[]</span>
+		<span class="p">}</span>
+		<span class="n">bdd</span><span class="p">[</span><span class="n">locusList</span><span class="p">[</span><span class="n">locus</span><span class="p">]]</span><span class="o">=</span> <span class="n">loci</span>
+	<span class="n">readGeneRegulonDB</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">bdd</span><span class="p">,</span><span class="n">locusList</span><span class="p">)</span>
+	<span class="n">readGrowthRegulonDB</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">bdd</span><span class="p">,</span><span class="n">locusList</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">bdd</span></div>
+	
+<div class="viewcode-block" id="saveLocusInfo"><a class="viewcode-back" href="../ecoli.html#ecoli.saveLocusInfo">[docs]</a><span class="k">def</span> <span class="nf">saveLocusInfo</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">bdd</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot; Save the dictionnary with all results in a text file called &#39;resultGrowth.txt&#39;.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    graph (tlp.Graph) : a graph with the required locus names</span>
+<span class="sd">    bdd (dict) : a dictionnary where all the informations about one locus are saved</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+	<span class="n">locus</span> <span class="o">=</span> <span class="n">getLocus</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;resultGrowth.txt&quot;</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">loci</span> <span class="ow">in</span> <span class="n">locus</span><span class="p">:</span>
+			<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;=================================</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Loci </span><span class="si">{}</span><span class="s2"> :</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loci</span><span class="p">))</span>
+			<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> Gene : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bdd</span><span class="p">[</span><span class="n">loci</span><span class="p">][</span><span class="s2">&quot;gene&quot;</span><span class="p">]))</span>
+			<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> Gene product : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bdd</span><span class="p">[</span><span class="n">loci</span><span class="p">][</span><span class="s2">&quot;product&quot;</span><span class="p">]))</span>
+			<span class="n">noRepeat</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="k">for</span> <span class="n">growth</span> <span class="ow">in</span> <span class="n">bdd</span><span class="p">[</span><span class="n">loci</span><span class="p">][</span><span class="s2">&quot;growth&quot;</span><span class="p">]:</span>
+				<span class="k">if</span><span class="p">(</span><span class="n">growth</span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">noRepeat</span><span class="p">):</span>
+					<span class="n">noRepeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">growth</span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">])</span>
+					<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> Growth condition : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">growth</span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">]))</span>
+					<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> Growth effect on gene : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">growth</span><span class="p">[</span><span class="s2">&quot;effect&quot;</span><span class="p">]))</span>
+			<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;End loci </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loci</span><span class="p">))</span></div>
 
 <span class="c1">#===================================</span>
 <span class="c1"># MAIN</span>
@@ -477,6 +594,10 @@
   <span class="c1"># Create Small Multiple Graph</span>
   <span class="n">smallMultGraph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">addSubGraph</span><span class="p">(</span><span class="s2">&quot;Small Multiples&quot;</span><span class="p">)</span>
   <span class="n">createSmallMultiples</span><span class="p">(</span><span class="n">smallMultGraph</span><span class="p">,</span> <span class="n">interactGraph</span><span class="p">,</span> <span class="n">rootGraph</span><span class="p">)</span>
+  
+  <span class="c1"># Get data from regulon and color graph</span>
+  <span class="n">bdd</span> <span class="o">=</span> <span class="n">getDataRegulonDB</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+  <span class="n">saveLocusInfo</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">bdd</span><span class="p">)</span>
   
   <span class="c1"># Create views for gene interaction and hierarchical tree graph</span>
   <span class="n">createView</span><span class="p">(</span><span class="n">interactGraph</span><span class="p">)</span>
